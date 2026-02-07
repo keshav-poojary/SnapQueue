@@ -1,0 +1,10 @@
+export class DbQueueNotFoundException {
+  message: string;
+  name: string = 'DbQueueNotFoundException';
+  context: Record<string, unknown>;
+
+  constructor(message: string, context: Record<string, unknown>) {
+    this.message = message;
+    this.context = context;
+  }
+}

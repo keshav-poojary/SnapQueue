@@ -10,7 +10,7 @@ export class TenantDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: 'ID of the tenant' })
-  id: string;
+  tenantId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -32,19 +32,4 @@ export class TenantDto {
   @IsNotEmpty()
   @ApiProperty({ description: 'Creation timestamp of the tenant' })
   createdAt: Date;
-
-  @IsDateString()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Last update timestamp of the tenant' })
-  updatedAt: Date;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Created by user' })
-  createdBy: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Updated by user' })
-  updatedBy: string;
 }

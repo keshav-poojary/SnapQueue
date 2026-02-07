@@ -1,5 +1,5 @@
 export class TenantDb {
-  id: string;
+  tenantId: string;
   name: string;
   description?: string;
   createdAt: Date;
@@ -8,7 +8,7 @@ export class TenantDb {
   updatedBy: string;
   apiKey: string;
   constructor(params: {
-    id: string;
+    tenantId: string;
     name: string;
     description?: string;
     createdAt: Date;
@@ -17,7 +17,7 @@ export class TenantDb {
     updatedBy: string;
     apiKey: string;
   }) {
-    this.id = params.id;
+    this.tenantId = params.tenantId;
     this.name = params.name;
     if (params.description) {
       this.description = params.description;

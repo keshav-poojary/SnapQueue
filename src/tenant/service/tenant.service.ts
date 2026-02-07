@@ -22,7 +22,6 @@ export class TenantService {
   }
   async create(command: CreateTenantCommandInput) {
     try {
-      console.log('Creating tenant with command:', command)
       const tenantId = uuid();
       const apiKey = this.generateApiKey();
 
@@ -30,9 +29,6 @@ export class TenantService {
         tenantId,
         apiKey,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: 'xyz',
-        updatedBy: 'xyz',
         ...command,
       };
 
