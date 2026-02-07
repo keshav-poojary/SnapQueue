@@ -8,7 +8,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TenantService } from '../service/tenant.service';
 import {
   CreateTenantRequestDto,
@@ -40,7 +45,6 @@ export class TenantController {
     type: GetTenantByIdResponseDto,
   })
   async create(@Body() request: CreateTenantRequestDto) {
-    console.log('Create Tenant Request:', request);
     try {
       const result: GetTenantByIdResponseDto =
         await this.tenantService.create(request);

@@ -1,9 +1,4 @@
-import {
-  AttributeValue,
-  DynamoDBClient,
-  RequestLimitExceeded,
-  ThrottlingException,
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -26,23 +21,24 @@ export class TenantRepository {
   private dynamodbClient: DynamoDBDocumentClient;
   private tenantTable: string;
 
- constructor(private configService: ConfigService) {
-  const tableName = this.configService.get<string>('TENANT_TABLE');
-  const region = this.configService.get<string>('AWS_REGION');
+  constructor(private configService: ConfigService) {
+    const tableName = this.configService.get<string>('TENANT_TABLE');
+    const region = this.configService.get<string>('AWS_REGION');
 
-  if (!tableName) throw new Error('TENANT_TABLE not set');
-  if (!region) throw new Error('AWS_REGION not set');
+    if (!tableName) throw new Error('TENANT_TABLE not set');
+    if (!region) throw new Error('AWS_REGION not set');
 
-  const baseClient = new DynamoDBClient({ region });
-  this.dynamodbClient = DynamoDBDocumentClient.from(baseClient, {
-    marshallOptions: { removeUndefinedValues: true, convertClassInstanceToMap: true },
-  });
-  this.tenantTable = tableName;
-}
-
+    const baseClient = new DynamoDBClient({ region });
+    this.dynamodbClient = DynamoDBDocumentClient.from(baseClient, {
+      marshallOptions: {
+        removeUndefinedValues: true,
+        convertClassInstanceToMap: true,
+      },
+    });
+    this.tenantTable = tableName;
+  }
 
   async create(req: CreateTenantDbRequest): Promise<void> {
-    console.log('TenantRepository.create called with:', req);
     try {
       await this.dynamodbClient.send(
         new PutCommand({
@@ -51,7 +47,6 @@ export class TenantRepository {
         }),
       );
     } catch (error) {
-      console.log('Error in TenantRepository.create:', error);
       throw new DbInternalServerException('Something went wrong', error);
     }
   }
