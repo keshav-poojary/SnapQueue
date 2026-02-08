@@ -75,5 +75,5 @@ export class QueueDto {
   @IsDateString()
   @IsNotEmpty()
   @ApiProperty({ description: 'Creation timestamp of the queue' })
-  createdAt: Date;
+  createdAt: string;
 }

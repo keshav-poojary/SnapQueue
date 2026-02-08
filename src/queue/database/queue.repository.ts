@@ -12,7 +12,6 @@ import {
   CreateQueueCommand,
   GetQueueAttributesCommand,
 } from '@aws-sdk/client-sqs';
-import { v4 as uuid } from 'uuid';
 import { QueueDb } from './db/common/queue.db';
 import { DbInternalServerException } from './db/exceptions/DbInternalServerError.exception';
 import { GetQueueByIdDbRequest } from './db/request/get-by-id.db';
