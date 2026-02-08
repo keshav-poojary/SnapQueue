@@ -1,14 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger/dist/decorators/api-property.decorator';
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger/dist/decorators/api-property.decorator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class GetAllTenantsRequestDto {
   @IsPositive()
   @IsNumber()
-  @ApiProperty({ description: 'Limit of tenants to return' })
-  limit: number;
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'Limit of tenants to return' })
+  limit?: number;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: 'Offset for pagination' })
-  offset: string;
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'Offset for pagination' })
+  offset?: string;
 }
