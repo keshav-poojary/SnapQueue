@@ -1,0 +1,85 @@
+import {
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ServiceInternalServerException } from '../service/exceptions/ServiceInternalServerError.exception';
+import { QueueService } from '../service/queue.service';
+import { CreateQueueRequestDto } from './dto/request/create.dto';
+import { GetQueueByIdResponseDto } from './dto/response/get-by-id.dto';
+import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotFound.exception';
+
+@Controller({
+  path: 'queues',
+  version: '0',
+})
+@ApiTags('Queues')
+export class QueuesController {
+  constructor(private readonly queueService: QueueService) {}
+
+  @Get('/livecheck')
+  @ApiOperation({ summary: 'Livecheck endpoint' })
+  async livecheck() {
+    return 'up!';
+  }
+
+  @Post('/')
+  @ApiOperation({ summary: 'Create a new queue' })
+  @ApiCreatedResponse({
+    description: 'The queue has been successfully created.',
+    type: GetQueueByIdResponseDto,
+  })
+  async create(@Body() request: CreateQueueRequestDto) {
+    try {
+      const result: GetQueueByIdResponseDto =
+        await this.queueService.create(request);
+      return result;
+    } catch (error) {
+      if (error instanceof ServiceQueueNotFoundException) {
+        throw new NotFoundException(`Queue was created but not found`);
+      }
+      if (error instanceof ServiceInternalServerException) {
+        throw new InternalServerErrorException(
+          `Internal server error while creating queue`,
+        );
+      }
+      throw error;
+    }
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: 'Get queue by ID' })
+  @ApiOkResponse({
+    description: 'The queue details',
+    type: GetQueueByIdResponseDto,
+  })
+  async getById(@Param('id') id: string) {
+    try {
+      const result: GetQueueByIdResponseDto = await this.queueService.getById({
+        queueId: id,
+      });
+      return result;
+    } catch (error) {
+      if (error instanceof ServiceQueueNotFoundException) {
+        throw new NotFoundException(`Queue not found`);
+      }
+      if (error instanceof ServiceInternalServerException) {
+        throw new InternalServerErrorException(
+          `Internal server error while fetching queue`,
+        );
+      }
+      throw error;
+    }
+  }
+}
