@@ -61,7 +61,7 @@ export class QueuesController {
   @Get('/:id')
   @ApiOperation({ summary: 'Get queue by ID' })
   @ApiOkResponse({
-    description: 'The queue details',
+    description: 'The queue detail by id',
     type: GetQueueByIdResponseDto,
   })
   async getById(@Param('id') id: string) {
