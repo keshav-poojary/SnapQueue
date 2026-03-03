@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -20,11 +21,13 @@ import { CreateQueueRequestDto } from './dto/request/create.dto';
 import { GetQueueByIdResponseDto } from './dto/response/get-by-id.dto';
 import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotFound.exception';
 import { ServiceTenantNotFoundException } from 'src/tenant/service/exceptions/ServiceNotFound.exception';
+import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 
 @Controller({
   path: 'queues',
   version: '0',
 })
+@UseGuards(TenantAuthGuard)
 @ApiTags('Queues')
 export class QueuesController {
   constructor(private readonly queueService: QueueService) {}

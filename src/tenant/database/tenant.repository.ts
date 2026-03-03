@@ -73,6 +73,31 @@ export class TenantRepository {
     }
   }
 
+  async getTenantByApiKey(apiKey: string): Promise<GetTenantByIdDbResponse> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new ScanCommand({
+          TableName: this.tenantTable,
+          FilterExpression: 'apiKey = :apiKey',
+          ExpressionAttributeValues: {
+            ':apiKey': apiKey,
+          },
+        }),
+      );
+
+      if (!result.Items || result.Items.length === 0) {
+        throw new DbTenantNotFoundException('Tenant not found', {
+          apiKey,
+        });
+      }
+
+      return result.Items[0] as GetTenantByIdDbResponse;
+    } catch (error) {
+      if (error instanceof DbTenantNotFoundException) throw error;
+      throw new DbInternalServerException('Something went wrong', error);
+    }
+  }
+
   async query(req: GetTenantsDbRequest): Promise<GetTenantsDbResponse> {
     try {
       let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
