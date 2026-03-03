@@ -7,5 +7,6 @@ import { TenantRepository } from './database/tenant.repository';
   imports: [],
   controllers: [TenantController],
   providers: [TenantService, TenantRepository],
+  exports: [TenantService],
 })
 export class TenantModule {}

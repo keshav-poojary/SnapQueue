@@ -8,14 +8,23 @@ import { DbQueueNotFoundException } from '../database/db/exceptions/DbQueueNotFo
 import { GetQueueByIdCommandInput } from './command/input/get-by-id';
 import { ServiceQueueNotFoundException } from './exceptions/ServiceNotFound.exception';
 import { ServiceInternalServerException } from './exceptions/ServiceInternalServerError.exception';
+import { TenantService } from 'src/tenant/service/tenant.service';
+import { ServiceTenantNotFoundException } from 'src/tenant/service/exceptions/ServiceNotFound.exception';
 
 @Injectable()
 export class QueueService {
-  constructor(private queueRepository: QueueRepository) {}
+  constructor(
+    private queueRepository: QueueRepository,
+    private tenantService: TenantService,
+  ) {}
   async create(command: CreateQueueCommandInput) {
     try {
       const queueId = uuid();
       const queueName = `${command.tenantId}-${command.name}`;
+
+      await this.tenantService.getById({
+        id: command.tenantId,
+      });
 
       const dbRequest: CreateQueueDbRequest = {
         queueId,
@@ -32,6 +41,10 @@ export class QueueService {
         ...result,
       });
     } catch (error) {
+      if (error instanceof ServiceTenantNotFoundException) {
+        throw error;
+      }
+
       if (error instanceof DbQueueNotFoundException) {
         throw new ServiceQueueNotFoundException('Queue Not found', {
           context: error,
