@@ -19,6 +19,7 @@ import { QueueService } from '../service/queue.service';
 import { CreateQueueRequestDto } from './dto/request/create.dto';
 import { GetQueueByIdResponseDto } from './dto/response/get-by-id.dto';
 import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotFound.exception';
+import { ServiceTenantNotFoundException } from 'src/tenant/service/exceptions/ServiceNotFound.exception';
 
 @Controller({
   path: 'queues',
@@ -27,13 +28,6 @@ import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotF
 @ApiTags('Queues')
 export class QueuesController {
   constructor(private readonly queueService: QueueService) {}
-
-  @Get('/livecheck')
-  @ApiOperation({ summary: 'Livecheck endpoint' })
-  async livecheck() {
-    return 'up!';
-  }
-
   @Post('/')
   @ApiOperation({ summary: 'Create a new queue' })
   @ApiCreatedResponse({
@@ -48,6 +42,11 @@ export class QueuesController {
     } catch (error) {
       if (error instanceof ServiceQueueNotFoundException) {
         throw new NotFoundException(`Queue was created but not found`);
+      }
+      if (error instanceof ServiceTenantNotFoundException) {
+        throw new NotFoundException(
+          `Tenant provided in request does not exists`,
+        );
       }
       if (error instanceof ServiceInternalServerException) {
         throw new InternalServerErrorException(

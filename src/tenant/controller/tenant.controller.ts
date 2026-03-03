@@ -31,13 +31,6 @@ import { ServiceInternalServerException } from '../service/exceptions/ServiceInt
 @ApiTags('Tenants')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
-
-  @Get('/livecheck')
-  @ApiOperation({ summary: 'Livecheck endpoint' })
-  async livecheck() {
-    return 'up!';
-  }
-
   @Post('/')
   @ApiOperation({ summary: 'Create a new tenant' })
   @ApiCreatedResponse({

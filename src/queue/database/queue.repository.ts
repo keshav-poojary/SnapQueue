@@ -22,6 +22,9 @@ export class QueueRepository {
   private dynamodbClient: DynamoDBDocumentClient;
   private sqsClient: SQSClient;
   private queueTable: string;
+  private readonly MESSAGE_RETENTION_PERIOD = '864000';
+  private readonly DEFAULT_RETRY_LIMIT = 3;
+  private readonly DEFAULT_RETRY_DELAY = 5000;
 
   constructor(private configService: ConfigService) {
     const tableName = this.configService.get<string>('QUEUE_TABLE');
@@ -47,7 +50,7 @@ export class QueueRepository {
         new CreateQueueCommand({
           QueueName: req.queueName,
           Attributes: {
-            MessageRetentionPeriod: '864000',
+            MessageRetentionPeriod: this.MESSAGE_RETENTION_PERIOD,
           },
         }),
       );
@@ -68,8 +71,8 @@ export class QueueRepository {
         name: req.name,
         queueUrl,
         queueArn,
-        retryLimit: req.retryLimit ?? 3,
-        retryDelay: req.retryDelay ?? 5000,
+        retryLimit: req.retryLimit ?? this.DEFAULT_RETRY_LIMIT,
+        retryDelay: req.retryDelay ?? this.DEFAULT_RETRY_DELAY,
         createdAt: req.createdAt,
       };
 
