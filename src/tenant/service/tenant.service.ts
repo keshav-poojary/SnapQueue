@@ -70,6 +70,25 @@ export class TenantService {
     }
   }
 
+  async getTenantByApiKey(apiKey: string) {
+    try {
+      const result = await this.tenantRepository.getTenantByApiKey(apiKey);
+
+      return new GetTenantByIdCommandOutput({
+        ...result,
+      });
+    } catch (error) {
+      if (error instanceof DbTenantNotFoundException) {
+        throw new ServiceTenantNotFoundException('Tenant Not found', {
+          context: error,
+        });
+      }
+      throw new ServiceInternalServerException('Something went wrong', {
+        context: error,
+      });
+    }
+  }
+
   async getAll(command: GetTenantsCommandInput) {
     try {
       const result = await this.tenantRepository.query({
