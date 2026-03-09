@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   InternalServerErrorException,
   NotFoundException,
   Param,
@@ -13,6 +14,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiHeader,
   ApiTags,
 } from '@nestjs/swagger';
 import { ServiceInternalServerException } from '../service/exceptions/ServiceInternalServerError.exception';
@@ -20,7 +22,7 @@ import { QueueService } from '../service/queue.service';
 import { CreateQueueRequestDto } from './dto/request/create.dto';
 import { GetQueueByIdResponseDto } from './dto/response/get-by-id.dto';
 import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotFound.exception';
-import { ServiceTenantNotFoundException } from 'src/tenant/service/exceptions/ServiceNotFound.exception';
+import { ServiceTenantNotFoundException } from 'src/tenants/service/exceptions/ServiceNotFound.exception';
 import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 
 @Controller({
@@ -32,6 +34,11 @@ import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 export class QueuesController {
   constructor(private readonly queueService: QueueService) {}
   @Post('/')
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'Tenant API key',
+    required: true,
+  })
   @ApiOperation({ summary: 'Create a new queue' })
   @ApiCreatedResponse({
     description: 'The queue has been successfully created.',
@@ -61,6 +68,11 @@ export class QueuesController {
   }
 
   @Get('/:id')
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'Tenant API key',
+    required: true,
+  })
   @ApiOperation({ summary: 'Get queue by ID' })
   @ApiOkResponse({
     description: 'The queue detail by id',

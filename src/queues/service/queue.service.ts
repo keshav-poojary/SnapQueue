@@ -8,8 +8,8 @@ import { DbQueueNotFoundException } from '../database/db/exceptions/DbQueueNotFo
 import { GetQueueByIdCommandInput } from './command/input/get-by-id';
 import { ServiceQueueNotFoundException } from './exceptions/ServiceNotFound.exception';
 import { ServiceInternalServerException } from './exceptions/ServiceInternalServerError.exception';
-import { TenantService } from 'src/tenant/service/tenant.service';
-import { ServiceTenantNotFoundException } from 'src/tenant/service/exceptions/ServiceNotFound.exception';
+import { TenantService } from 'src/tenants/service/tenant.service';
+import { ServiceTenantNotFoundException } from 'src/tenants/service/exceptions/ServiceNotFound.exception';
 
 @Injectable()
 export class QueueService {

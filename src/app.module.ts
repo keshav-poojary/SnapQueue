@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TenantModule } from './tenant/tenant.module';
-import { QueueModule } from './queue/queue.module';
+import { TenantModule } from './tenants/tenant.module';
+import { QueueModule } from './queues/queue.module';
 import { LiveCheckModule } from './livecheck/livecheck.module';
+import { JobModule } from './jobs/job.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { LiveCheckModule } from './livecheck/livecheck.module';
     LiveCheckModule,
     TenantModule,
     QueueModule,
+    JobModule,
   ],
   controllers: [],
   providers: [],
