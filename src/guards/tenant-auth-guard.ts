@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { TenantService } from 'src/tenant/service/tenant.service';
+import { TenantService } from 'src/tenants/service/tenant.service';
 import { AuthError } from './exceptions/AuthError.exeception';
 @Injectable()
 export class TenantAuthGuard implements CanActivate {
@@ -17,12 +17,15 @@ export class TenantAuthGuard implements CanActivate {
     }
 
     const tenant = await this.tenantService.getTenantByApiKey(apiKey);
+    const method = request.method;
 
-    if (request.body.tenantId && request.body.tenantId !== tenant.tenantId) {
-      throw new AuthError('Tenant ID in body does not match with API key', {
-        apiKey: request.headers['x-api-key'],
-        tenantId: request.body.tenantId,
-      });
+    if (['POST', 'PUT', 'PATCH'].includes(method)) {
+      if (request.body?.tenantId && request.body.tenantId !== tenant.tenantId) {
+        throw new AuthError('Tenant ID in body does not match with API key', {
+          apiKey,
+          tenantId: request.body.tenantId,
+        });
+      }
     }
 
     return true;
