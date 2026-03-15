@@ -1,9 +1,15 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  AttributeValue,
+  DynamoDBClient,
+  PutItemCommand,
+  ScanCommand,
+} from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CreateQueueDbRequest } from './db/request/create.db';
@@ -17,6 +23,8 @@ import { DbInternalServerException } from './db/exceptions/DbInternalServerError
 import { GetQueueByIdDbRequest } from './db/request/get-by-id.db';
 import { GetQueueByIdDbResponse } from './db/response/get-by-id.db';
 import { DbQueueNotFoundException } from './db/exceptions/DbQueueNotFound.exception';
+import { GetAllQueuesDbRequest } from './db/request/get-all.db';
+import { GetAllQueuesDbResponse } from './db/response/get-all.db';
 @Injectable()
 export class QueueRepository {
   private dynamodbClient: DynamoDBDocumentClient;
@@ -105,6 +113,42 @@ export class QueueRepository {
       return result.Item as GetQueueByIdDbResponse;
     } catch (error) {
       if (error instanceof DbQueueNotFoundException) throw error;
+      throw new DbInternalServerException('Something went wrong', error);
+    }
+  }
+
+  async getAll(req: GetAllQueuesDbRequest): Promise<GetAllQueuesDbResponse> {
+    try {
+      let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
+
+      if (req.offset) {
+        lastEvaluatedKey = JSON.parse(
+          Buffer.from(req.offset, 'base64').toString('utf8'),
+        );
+      }
+
+      const result = await this.dynamodbClient.send(
+        new ScanCommand({
+          TableName: this.queueTable,
+          Limit: req.limit,
+          ExclusiveStartKey: lastEvaluatedKey,
+        }),
+      );
+
+      const nextOffset = result.LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
+            'base64',
+          )
+        : undefined;
+
+      const queues =
+        result.Items?.map((item) => unmarshall(item) as QueueDb) ?? [];
+
+      return new GetAllQueuesDbResponse({
+        queues,
+        offset: nextOffset,
+      });
+    } catch (error) {
       throw new DbInternalServerException('Something went wrong', error);
     }
   }

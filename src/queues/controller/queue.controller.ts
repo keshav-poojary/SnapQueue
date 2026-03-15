@@ -2,12 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  Header,
   InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
