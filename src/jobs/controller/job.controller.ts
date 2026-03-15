@@ -23,6 +23,7 @@ import { ServiceJobNotFoundException } from '../service/command/exceptions/Servi
 import { ServiceInternalServerException } from 'src/tenants/service/exceptions/ServiceInternalServerError.exception';
 import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
+import { GetJobResponseDto } from './dto/response/get-job-response.dto';
 
 @Controller({
   path: 'jobs',
@@ -60,6 +61,30 @@ export class JobController {
         );
       }
 
+      throw error;
+    }
+  }
+
+  @Get('/:jobId')
+  @ApiOperation({ summary: 'Get job by ID' })
+  @ApiOkResponse({
+    description: 'The job has been successfully retrieved.',
+    type: GetJobResponseDto,
+  })
+  async getById(@Param('jobId') jobId: string) {
+    try {
+      const result = await this.jobService.getById({ jobId });
+      return result;
+    } catch (error) {
+      if (error instanceof ServiceJobNotFoundException) {
+        throw new NotFoundException(`Job with ID ${jobId} not found`);
+      }
+
+      if (error instanceof ServiceInternalServerException) {
+        throw new InternalServerErrorException(
+          `Internal server error while retrieving job with ID ${jobId}`,
+        );
+      }
       throw error;
     }
   }

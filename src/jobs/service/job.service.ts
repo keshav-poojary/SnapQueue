@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { JobRepository } from '../database/job.repository';
 import { CreateJobCommandInput } from './command/input/create-job.command.input';
-import { CreateJobCommandOutput } from './command/output/create-job.command.output';
 import { CreateJobDbRequest } from '../database/db/request/create-job.db.request';
 import { DbJobNotFoundException } from '../database/db/exceptions/DbJobNotFound.exception.';
 import { ServiceJobNotFoundException } from './command/exceptions/ServiceNotFound.exception';
@@ -10,6 +9,8 @@ import { ServiceInternalServerException } from './command/exceptions/ServiceInte
 import { QueueRepository } from 'src/queues/database/queue.repository';
 import { DbQueueNotFoundException } from 'src/queues/database/db/exceptions/DbQueueNotFound.exception';
 import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
+import { GetJobByIdCommandOutput } from './command/output/get-job-by-id.command.ouput';
+import { GetJobByIdCommandInput } from './command/input/get-job-by-id.command.input';
 @Injectable()
 export class JobService {
   constructor(
@@ -19,7 +20,7 @@ export class JobService {
 
   async create(
     command: CreateJobCommandInput,
-  ): Promise<CreateJobCommandOutput> {
+  ): Promise<GetJobByIdCommandOutput> {
     try {
       const queue = await this.queueRepo.getById({ queueId: command.queueId });
       const jobId = uuid();
@@ -37,7 +38,7 @@ export class JobService {
       const result = await this.jobRepository.getById({
         jobId,
       });
-      return new CreateJobCommandOutput({
+      return new GetJobByIdCommandOutput({
         ...result,
       });
     } catch (error) {
@@ -53,6 +54,28 @@ export class JobService {
         });
       }
 
+      throw new ServiceInternalServerException('Something went wrong', {
+        context: error,
+      });
+    }
+  }
+
+  async getById(
+    command: GetJobByIdCommandInput,
+  ): Promise<GetJobByIdCommandOutput> {
+    try {
+      const result = await this.jobRepository.getById({
+        jobId: command.jobId,
+      });
+      return new GetJobByIdCommandOutput({
+        ...result,
+      });
+    } catch (error) {
+      if (error instanceof DbJobNotFoundException) {
+        throw new ServiceJobNotFoundException('Job not found', {
+          context: error,
+        });
+      }
       throw new ServiceInternalServerException('Something went wrong', {
         context: error,
       });

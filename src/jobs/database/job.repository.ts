@@ -22,9 +22,7 @@ export class JobRepository {
   private sqsClient: SQSClient;
   private jobTable: string;
 
-  constructor(
-    private configService: ConfigService,
-  ) {
+  constructor(private configService: ConfigService) {
     const tableName = this.configService.get<string>('JOB_TABLE');
     const region = this.configService.get<string>('AWS_REGION');
 
@@ -115,6 +113,24 @@ export class JobRepository {
     } catch (error) {
       if (error instanceof DbJobNotFoundException) throw error;
       throw new DbInternalServerException('Something went wrong', error);
+    }
+  }
+
+  async updateJobStatus(jobId: string, status: JobStatusEnum): Promise<void> {
+    try {
+      await this.dynamodbClient.send(
+        new UpdateCommand({
+          TableName: this.jobTable,
+          Key: { jobId },
+          UpdateExpression: 'SET jobStatus = :status, updatedAt = :updatedAt',
+          ExpressionAttributeValues: {
+            ':status': status,
+            ':updatedAt': new Date().toISOString(),
+          },
+        }),
+      );
+    } catch (error) {
+      throw new DbInternalServerException('Failed to update job status', error);
     }
   }
 }
