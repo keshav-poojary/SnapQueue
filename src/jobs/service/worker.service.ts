@@ -4,16 +4,17 @@ import {
   ReceiveMessageCommand,
   SQSClient,
 } from '@aws-sdk/client-sqs';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QueueDb } from 'src/queues/database/db/common/queue.db';
 import { QueueRepository } from 'src/queues/database/queue.repository';
 import { JobRepository } from '../database/job.repository';
 import { JobStatusEnum } from '../constants/enum';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
+import { JobProcessorService } from './job.processor.service';
 
 @Injectable()
-export class WorkerService {
+export class WorkerService implements OnModuleInit {
   private readonly logger = new Logger(WorkerService.name);
   private readonly sqsClient: SQSClient;
 
@@ -21,6 +22,7 @@ export class WorkerService {
     private readonly configService: ConfigService,
     private readonly queueRepo: QueueRepository,
     private readonly jobRepository: JobRepository,
+    private readonly jobProcessor: JobProcessorService,
   ) {
     const region = this.configService.get<string>('AWS_REGION');
     this.sqsClient = new SQSClient({ region });
@@ -33,6 +35,10 @@ export class WorkerService {
     for (const queue of queuesResponse.queues) {
       this.pollQueue(queue);
     }
+  }
+
+  onModuleInit() {
+    this.start();
   }
 
   async pollQueue(queue: QueueDb) {
@@ -75,7 +81,7 @@ export class WorkerService {
         JobStatusEnum.IN_PROGRESS,
       );
 
-      //await this.jobExecutor.execute(job);
+      await this.jobProcessor.executeJob(job);
 
       await this.jobRepository.updateJobStatus(jobId, JobStatusEnum.COMPLETED);
 
