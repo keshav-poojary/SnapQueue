@@ -15,6 +15,7 @@ import { GetJobByIdDbResponse } from './db/response/get-job-by-id.db.response';
 import { DbJobNotFoundException } from './db/exceptions/DbJobNotFound.exception.';
 import { DbInternalServerException } from './db/exceptions/DbInternalServerError.exception';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { JobResult } from '../service/command/output/job.result';
 
 @Injectable()
 export class JobRepository {
@@ -116,21 +117,68 @@ export class JobRepository {
     }
   }
 
-  async updateJobStatus(jobId: string, status: JobStatusEnum): Promise<void> {
+  async updateJobStatus(
+    jobId: string,
+    status: JobStatusEnum,
+    result?: JobResult | void,
+    attempts?: number,
+  ): Promise<void> {
     try {
+      const updateExpression = [
+        'SET jobStatus = :status',
+        'updatedAt = :updatedAt',
+      ];
+
+      const expressionAttributeValues: Record<string, any> = {
+        ':status': status,
+        ':updatedAt': new Date().toISOString(),
+      };
+
+      if (result) {
+        updateExpression.push('jobResult = :jobResult');
+        expressionAttributeValues[':jobResult'] = result;
+      }
+
+      if (attempts) {
+        updateExpression.push('attempts = :attempts');
+        expressionAttributeValues[':attempts'] = attempts;
+      }
+
       await this.dynamodbClient.send(
         new UpdateCommand({
           TableName: this.jobTable,
           Key: { jobId },
-          UpdateExpression: 'SET jobStatus = :status, updatedAt = :updatedAt',
-          ExpressionAttributeValues: {
-            ':status': status,
-            ':updatedAt': new Date().toISOString(),
-          },
+          UpdateExpression: updateExpression.join(', '),
+          ExpressionAttributeValues: expressionAttributeValues,
         }),
       );
     } catch (error) {
       throw new DbInternalServerException('Failed to update job status', error);
+    }
+  }
+
+  async getJobResult(req: GetJobByIdDbRequest): Promise<JobResult | undefined> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new GetCommand({
+          TableName: this.jobTable,
+          Key: {
+            jobId: req.jobId,
+          },
+          ProjectionExpression: 'jobResult',
+        }),
+      );
+
+      if (!result.Item) {
+        throw new DbJobNotFoundException('Job not found', {
+          jobId: req.jobId,
+        });
+      }
+
+      return result.Item.jobResult as JobResult;
+    } catch (error) {
+      if (error instanceof DbJobNotFoundException) throw error;
+      throw new DbInternalServerException('Something went wrong', error);
     }
   }
 }

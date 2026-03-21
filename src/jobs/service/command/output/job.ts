@@ -1,4 +1,5 @@
 import { JobStatusEnum } from 'src/jobs/constants/enum';
+import { JobResult } from './job.result';
 
 export class Job {
   jobId: string;
@@ -9,6 +10,7 @@ export class Job {
   payload: Record<string, any>;
   jobStatus: JobStatusEnum;
   attempts: number;
+
   constructor(params: {
     jobId: string;
     queueId: string;
