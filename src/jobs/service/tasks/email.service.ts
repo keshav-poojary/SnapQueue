@@ -12,7 +12,6 @@ export class EmailService {
     this.emailUserId = this.configService.get<string>('EMAIL_KEY');
     this.emailAuthId = this.configService.get<string>('EMAIL_PASS');
 
-    console.log(this.emailAuthId, this.emailUserId);
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,

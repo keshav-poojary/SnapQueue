@@ -12,10 +12,13 @@ import { JobRepository } from '../database/job.repository';
 import { JobStatusEnum } from '../constants/enum';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
 import { JobProcessorService } from './job.processor.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
-export class WorkerService implements OnModuleInit {
+export class WorkerService {
   private readonly logger = new Logger(WorkerService.name);
+  private readonly MAX_NUMBER_OF_MESSAGES = 10;
+  private readonly WAIT_TIME_SECONDS = 20;
   private readonly sqsClient: SQSClient;
 
   constructor(
@@ -32,13 +35,16 @@ export class WorkerService implements OnModuleInit {
     this.logger.log('Worker Started');
     const queuesResponse = await this.queueRepo.getAll({});
 
-    for (const queue of queuesResponse.queues) {
-      this.pollQueue(queue);
-    }
+    await Promise.all(
+      queuesResponse.queues.map((queue) => {
+        this.pollQueue(queue);
+      }),
+    );
   }
 
-  onModuleInit() {
-    this.start();
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async cronSchedule() {
+    await this.start();
   }
 
   async pollQueue(queue: QueueDb) {
@@ -48,6 +54,8 @@ export class WorkerService implements OnModuleInit {
       const result = await this.sqsClient.send(
         new ReceiveMessageCommand({
           QueueUrl: queue.queueUrl,
+          MaxNumberOfMessages: this.MAX_NUMBER_OF_MESSAGES,
+          WaitTimeSeconds: this.WAIT_TIME_SECONDS,
         }),
       );
 
@@ -55,9 +63,11 @@ export class WorkerService implements OnModuleInit {
         return;
       }
 
-      for (const message of result.Messages) {
-        this.processMessage(message, queue.queueUrl!);
-      }
+      await Promise.all(
+        result.Messages.map((message) => {
+          this.processMessage(message, queue.queueUrl!);
+        }),
+      );
     } catch (error) {
       this.logger.error('Error polling queue', error);
       throw new ServiceInternalServerException(
