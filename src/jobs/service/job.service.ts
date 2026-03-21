@@ -11,6 +11,7 @@ import { DbQueueNotFoundException } from 'src/queues/database/db/exceptions/DbQu
 import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
 import { GetJobByIdCommandOutput } from './command/output/get-job-by-id.command.ouput';
 import { GetJobByIdCommandInput } from './command/input/get-job-by-id.command.input';
+import { GetJobResultCommandOutput } from './command/output/get-job-result.command.output';
 @Injectable()
 export class JobService {
   constructor(
@@ -69,6 +70,29 @@ export class JobService {
       });
       return new GetJobByIdCommandOutput({
         ...result,
+      });
+    } catch (error) {
+      if (error instanceof DbJobNotFoundException) {
+        throw new ServiceJobNotFoundException('Job not found', {
+          context: error,
+        });
+      }
+      throw new ServiceInternalServerException('Something went wrong', {
+        context: error,
+      });
+    }
+  }
+
+  async getJobResult(
+    command: GetJobByIdCommandInput,
+  ): Promise<GetJobResultCommandOutput> {
+    try {
+      const result = await this.jobRepository.getJobResult({
+        jobId: command.jobId,
+      });
+      return new GetJobResultCommandOutput({
+        base64: result?.base64,
+        contentType: result?.contentType,
       });
     } catch (error) {
       if (error instanceof DbJobNotFoundException) {

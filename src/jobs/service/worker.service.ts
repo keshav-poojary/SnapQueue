@@ -1,6 +1,7 @@
 // polls job from sqs and sends to process
 import {
   DeleteMessageCommand,
+  Message,
   ReceiveMessageCommand,
   SQSClient,
 } from '@aws-sdk/client-sqs';
@@ -13,6 +14,8 @@ import { JobStatusEnum } from '../constants/enum';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
 import { JobProcessorService } from './job.processor.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { DbJobNotFoundException } from '../database/db/exceptions/DbJobNotFound.exception.';
+import { JobDb } from '../database/db/response/job.db';
 
 @Injectable()
 export class WorkerService {
@@ -20,6 +23,7 @@ export class WorkerService {
   private readonly MAX_NUMBER_OF_MESSAGES = 10;
   private readonly WAIT_TIME_SECONDS = 20;
   private readonly sqsClient: SQSClient;
+  private readonly MAX_RETRIES = 3;
 
   constructor(
     private readonly configService: ConfigService,
@@ -77,10 +81,68 @@ export class WorkerService {
     }
   }
 
-  private async processMessage(message: any, queueUrl: string) {
+  private async deleteMessage(queueUrl: string, message: Message) {
+    if (!message.ReceiptHandle) return;
+
+    await this.sqsClient.send(
+      new DeleteMessageCommand({
+        QueueUrl: queueUrl,
+        ReceiptHandle: message.ReceiptHandle,
+      }),
+    );
+  }
+
+  private async safeDeleteMessage(queueUrl: string, message: Message) {
     try {
-      const body = JSON.parse(message.Body);
-      const jobId = body.jobId;
+      await this.deleteMessage(queueUrl, message);
+    } catch (err) {
+      this.logger.error('Failed to delete message', err);
+    }
+  }
+
+  private async handleProcessError(
+    error: unknown,
+    message: Message,
+    queueUrl: string,
+    jobId?: string,
+  ) {
+    this.logger.error('Job failed', error);
+
+    if (error instanceof DbJobNotFoundException) {
+      this.logger.error(`Job not found, deleting message ${jobId}`);
+
+      await this.safeDeleteMessage(queueUrl, message);
+    }
+  }
+
+  private async executeWithRetry(jobId: string, job: JobDb) {
+    let attempts = 0;
+
+    while (attempts < this.MAX_RETRIES) {
+      try {
+        const result = await this.jobProcessor.executeJob(job);
+
+        return { success: true, data: result, attempts: attempts + 1 };
+      } catch (error) {
+        attempts++;
+
+        this.logger.error(`Attempt ${attempts} failed for job ${jobId}`, error);
+
+        if (attempts >= this.MAX_RETRIES) {
+          return { success: false, attempts };
+        }
+      }
+    }
+
+    return { success: false, attempts };
+  }
+
+  private async processMessage(message: Message, queueUrl: string) {
+    let jobId: string = '';
+
+    try {
+      const body = JSON.parse(message.Body as string);
+      jobId = body.jobId;
 
       this.logger.log(`Processing job ${jobId}`);
 
@@ -91,24 +153,32 @@ export class WorkerService {
         JobStatusEnum.IN_PROGRESS,
       );
 
-      await this.jobProcessor.executeJob(job);
+      const result = await this.executeWithRetry(jobId, job);
 
-      await this.jobRepository.updateJobStatus(jobId, JobStatusEnum.COMPLETED);
+      if (result.success) {
+        await this.jobRepository.updateJobStatus(
+          jobId,
+          JobStatusEnum.COMPLETED,
+          result.data,
+        );
 
-      await this.sqsClient.send(
-        new DeleteMessageCommand({
-          QueueUrl: queueUrl,
-          ReceiptHandle: message.ReceiptHandle,
-        }),
+        await this.deleteMessage(queueUrl, message);
+        this.logger.log(`Job completed ${jobId}`);
+        return;
+      }
+
+      await this.jobRepository.updateJobStatus(
+        jobId,
+        JobStatusEnum.FAILED,
+        undefined,
+        result.attempts,
       );
 
-      this.logger.log(`Job completed ${jobId}`);
-    } catch (error) {
-      this.logger.error('Job failed', error);
-      throw new ServiceInternalServerException(
-        'Something went wrong while processing message',
-        error,
+      this.logger.error(
+        `Job failed after ${result.attempts} attempts ${jobId}`,
       );
+    } catch (error: unknown) {
+      await this.handleProcessError(error, message, queueUrl, jobId);
     }
   }
 }

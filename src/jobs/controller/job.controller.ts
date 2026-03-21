@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 
@@ -24,6 +25,7 @@ import { ServiceInternalServerException } from 'src/tenants/service/exceptions/S
 import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
 import { GetJobResponseDto } from './dto/response/get-job-response.dto';
+import { GetJobResultResponseDto } from './dto/response/get-job-result-rersponse.dto';
 
 @Controller({
   path: 'jobs',
@@ -73,7 +75,9 @@ export class JobController {
   })
   async getById(@Param('jobId') jobId: string) {
     try {
-      const result = await this.jobService.getById({ jobId });
+      const result: GetJobResponseDto = await this.jobService.getById({
+        jobId,
+      });
       return result;
     } catch (error) {
       if (error instanceof ServiceJobNotFoundException) {
@@ -83,6 +87,37 @@ export class JobController {
       if (error instanceof ServiceInternalServerException) {
         throw new InternalServerErrorException(
           `Internal server error while retrieving job with ID ${jobId}`,
+        );
+      }
+      throw error;
+    }
+  }
+
+  @Get('/:jobId/result')
+  @ApiOperation({ summary: 'Get job result by ID' })
+  @ApiOkResponse({
+    description: 'The job result has been successfully retrieved.',
+    type: GetJobResultResponseDto,
+  })
+  async getJobResult(@Param('jobId') jobId: string, @Res() res) {
+    try {
+      const result: GetJobResultResponseDto | undefined =
+        await this.jobService.getJobResult({ jobId });
+      if (!result || !result.base64 || !result.contentType) {
+        return [];
+      }
+      const buffer = Buffer.from(result.base64, 'base64');
+      res.setHeader('Content-Type', result.contentType);
+      res.send(buffer);
+      return result;
+    } catch (error) {
+      if (error instanceof ServiceJobNotFoundException) {
+        throw new NotFoundException(`Job with ID  ${jobId} not found`);
+      }
+
+      if (error instanceof ServiceInternalServerException) {
+        throw new InternalServerErrorException(
+          `Internal server error while retrieving job result for job with ID ${jobId}`,
         );
       }
       throw error;
