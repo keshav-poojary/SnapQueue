@@ -7,9 +7,10 @@ import { TenantModule } from 'src/tenants/tenant.module';
 import { WorkerService } from './service/worker.service';
 import { JobProcessorService } from './service/job.processor.service';
 import { EmailService } from './service/tasks/email.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [TenantModule],
+  imports: [TenantModule, ScheduleModule.forRoot()],
   controllers: [JobController],
   providers: [
     JobService,
