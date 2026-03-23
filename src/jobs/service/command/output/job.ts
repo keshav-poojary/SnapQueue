@@ -1,5 +1,4 @@
 import { JobStatusEnum } from 'src/jobs/constants/enum';
-import { JobResult } from './job.result';
 
 export class Job {
   jobId: string;

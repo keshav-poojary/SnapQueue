@@ -12,6 +12,8 @@ import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/Ser
 import { GetJobByIdCommandOutput } from './command/output/get-job-by-id.command.ouput';
 import { GetJobByIdCommandInput } from './command/input/get-job-by-id.command.input';
 import { GetJobResultCommandOutput } from './command/output/get-job-result.command.output';
+import { JobPayloadTaskEnum } from '../constants/enum';
+import { ServiceInvalidJobException } from './command/exceptions/ServiceInvalidJobException';
 @Injectable()
 export class JobService {
   constructor(
@@ -87,6 +89,17 @@ export class JobService {
     command: GetJobByIdCommandInput,
   ): Promise<GetJobResultCommandOutput> {
     try {
+      const job = await this.getById(command);
+
+      if (job.payload.task !== JobPayloadTaskEnum.IMAGE_PROCESSING) {
+        throw new ServiceInvalidJobException(
+          'This type of jobs does not support result retrieval',
+          {
+            context: { jobId: command.jobId },
+          },
+        );
+      }
+
       const result = await this.jobRepository.getJobResult({
         jobId: command.jobId,
       });
@@ -95,6 +108,9 @@ export class JobService {
         contentType: result?.contentType,
       });
     } catch (error) {
+      if (error instanceof ServiceInvalidJobException) {
+        throw error;
+      }
       if (error instanceof DbJobNotFoundException) {
         throw new ServiceJobNotFoundException('Job not found', {
           context: error,
