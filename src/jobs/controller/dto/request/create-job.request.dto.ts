@@ -1,6 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { ImageProcessingPayloadDto } from './task/image_processing.dto';
+import { SendEmailPayloadDto } from './task/send_email.dto';
 
+@ApiExtraModels(ImageProcessingPayloadDto, SendEmailPayloadDto)
 export class CreateJobRequestDto {
   @IsString()
   @IsNotEmpty()
@@ -14,9 +17,12 @@ export class CreateJobRequestDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'The payload of the job, can be any JSON object',
-    example: { task: 'send_email', to: 'user@example.com' },
+    oneOf: [
+      { $ref: getSchemaPath(ImageProcessingPayloadDto) },
+      { $ref: getSchemaPath(SendEmailPayloadDto) },
+    ],
   })
-  payload: Record<string, any>;
+  payload: ImageProcessingPayloadDto | SendEmailPayloadDto;
 
   @IsString()
   @IsNotEmpty()

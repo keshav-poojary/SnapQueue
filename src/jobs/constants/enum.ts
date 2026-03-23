@@ -5,3 +5,8 @@ export enum JobStatusEnum {
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
+
+export enum JobPayloadTaskEnum {
+  IMAGE_PROCESSING = 'image_processing',
+  SEND_EMAIL = 'send_email',
+}

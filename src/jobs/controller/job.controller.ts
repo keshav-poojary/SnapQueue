@@ -26,6 +26,7 @@ import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
 import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
 import { GetJobResponseDto } from './dto/response/get-job-response.dto';
 import { GetJobResultResponseDto } from './dto/response/get-job-result-rersponse.dto';
+import { ServiceInvalidJobException } from '../service/command/exceptions/ServiceInvalidJobException';
 
 @Controller({
   path: 'jobs',
@@ -111,6 +112,11 @@ export class JobController {
       res.send(buffer);
       return result;
     } catch (error) {
+      if (error instanceof ServiceInvalidJobException) {
+        throw new NotFoundException(
+          `This type of jobs does not support result retrieval`,
+        );
+      }
       if (error instanceof ServiceJobNotFoundException) {
         throw new NotFoundException(`Job with ID  ${jobId} not found`);
       }
