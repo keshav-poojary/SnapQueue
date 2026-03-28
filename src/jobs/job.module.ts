@@ -9,6 +9,7 @@ import { JobProcessorService } from './service/job.processor.service';
 import { EmailService } from './service/tasks/email.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ImageProcessorService } from './service/tasks/image.processor..service';
+import { BulkEmailService } from './service/tasks/bulk.email.service';
 
 @Module({
   imports: [TenantModule, ScheduleModule.forRoot()],
@@ -22,6 +23,7 @@ import { ImageProcessorService } from './service/tasks/image.processor..service'
     JobProcessorService,
     EmailService,
     ImageProcessorService,
+    BulkEmailService,
   ],
 })
 export class JobModule {}
