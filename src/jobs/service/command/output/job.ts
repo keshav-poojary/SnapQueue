@@ -1,4 +1,4 @@
-import { JobStatusEnum } from 'src/jobs/constants/enum';
+import { JobStatusEnum } from '../../../constants/enum';
 
 export class Job {
   jobId: string;

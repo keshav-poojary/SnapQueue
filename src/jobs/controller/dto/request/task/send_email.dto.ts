@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsEmail, IsOptional, IsNotEmpty } from 'class-validator';
-import { JobPayloadTaskEnum } from 'src/jobs/constants/enum';
+import { JobPayloadTaskEnum } from '../../../../constants/enum';
 
 export class SendEmailPayloadDto {
   @IsString()

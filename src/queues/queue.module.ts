@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { QueuesController } from './controller/queue.controller';
 import { QueueService } from './service/queue.service';
 import { QueueRepository } from './database/queue.repository';
-import { TenantModule } from 'src/tenants/tenant.module';
+import { TenantModule } from '../tenants/tenant.module';
 
 @Module({
   imports: [TenantModule],

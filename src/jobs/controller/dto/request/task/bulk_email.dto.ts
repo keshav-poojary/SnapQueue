@@ -1,12 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsArray,
-} from 'class-validator';
-import { JobPayloadTaskEnum } from 'src/jobs/constants/enum';
+import { IsString, IsOptional, IsArray } from 'class-validator';
+import { JobPayloadTaskEnum } from '../../../../constants/enum';
 
 export class BulkEmailPayloadDto {
   @IsString()
@@ -14,7 +8,7 @@ export class BulkEmailPayloadDto {
     description: 'The type of the task, must be "bulk_send_email"',
     enum: [JobPayloadTaskEnum.BULK_SEND_EMAIL],
   })
-  task: JobPayloadTaskEnum.SEND_EMAIL;
+  task: JobPayloadTaskEnum.BULK_SEND_EMAIL;
 
   @IsArray()
   @ApiProperty({

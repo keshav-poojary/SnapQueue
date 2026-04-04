@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsObject, IsUUID, IsDateString } from 'class-validator';
-import { JobStatusEnum } from 'src/jobs/constants/enum';
+import { JobStatusEnum } from '../../../constants/enum';
 
 export class CreateJobResponseDto {
   @ApiProperty({

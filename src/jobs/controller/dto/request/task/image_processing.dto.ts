@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsUrl,
 } from 'class-validator';
-import { JobPayloadTaskEnum } from 'src/jobs/constants/enum';
+import { JobPayloadTaskEnum } from '../../../../constants/enum';
 
 export class ImageProcessingPayloadDto {
   @IsString()

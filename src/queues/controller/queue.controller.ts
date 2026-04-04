@@ -20,8 +20,8 @@ import { QueueService } from '../service/queue.service';
 import { CreateQueueRequestDto } from './dto/request/create.dto';
 import { GetQueueByIdResponseDto } from './dto/response/get-by-id.dto';
 import { ServiceQueueNotFoundException } from '../service/exceptions/ServiceNotFound.exception';
-import { ServiceTenantNotFoundException } from 'src/tenants/service/exceptions/ServiceNotFound.exception';
-import { TenantAuthGuard } from 'src/guards/tenant-auth-guard';
+import { TenantAuthGuard } from '../../guards/tenant-auth-guard';
+import { ServiceTenantNotFoundException } from '../../tenants/service/exceptions/ServiceNotFound.exception';
 
 @Controller({
   path: 'queues',

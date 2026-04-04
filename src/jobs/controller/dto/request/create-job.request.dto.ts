@@ -3,6 +3,7 @@ import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { ImageProcessingPayloadDto } from './task/image_processing.dto';
 import { SendEmailPayloadDto } from './task/send_email.dto';
 import { BulkEmailPayloadDto } from './task/bulk_email.dto';
+import { GeneratePdfPayloadDto } from './task/generate_pdf.dto';
 
 @ApiExtraModels(
   ImageProcessingPayloadDto,
@@ -26,12 +27,14 @@ export class CreateJobRequestDto {
       { $ref: getSchemaPath(ImageProcessingPayloadDto) },
       { $ref: getSchemaPath(SendEmailPayloadDto) },
       { $ref: getSchemaPath(BulkEmailPayloadDto) },
+      { $ref: getSchemaPath(GeneratePdfPayloadDto) },
     ],
   })
   payload:
     | ImageProcessingPayloadDto
     | SendEmailPayloadDto
-    | BulkEmailPayloadDto;
+    | BulkEmailPayloadDto
+    | GeneratePdfPayloadDto;
 
   @IsString()
   @IsNotEmpty()

@@ -1,5 +1,3 @@
-import { JobStatusEnum } from 'src/jobs/constants/enum';
-
 export class CreateJobCommandInput {
   queueId: string;
   payload: Record<string, any>;

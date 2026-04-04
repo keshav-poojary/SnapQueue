@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { TenantService } from 'src/tenants/service/tenant.service';
+
 import { AuthError } from './exceptions/AuthError.exeception';
+import { TenantService } from '../tenants/service/tenant.service';
 @Injectable()
 export class TenantAuthGuard implements CanActivate {
   constructor(private readonly tenantService: TenantService) {}

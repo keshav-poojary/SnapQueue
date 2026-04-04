@@ -6,14 +6,14 @@ import { CreateJobDbRequest } from '../database/db/request/create-job.db.request
 import { DbJobNotFoundException } from '../database/db/exceptions/DbJobNotFound.exception.';
 import { ServiceJobNotFoundException } from './command/exceptions/ServiceNotFound.exception';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
-import { QueueRepository } from 'src/queues/database/queue.repository';
-import { DbQueueNotFoundException } from 'src/queues/database/db/exceptions/DbQueueNotFound.exception';
-import { ServiceQueueNotFoundException } from 'src/queues/service/exceptions/ServiceNotFound.exception';
 import { GetJobByIdCommandOutput } from './command/output/get-job-by-id.command.ouput';
 import { GetJobByIdCommandInput } from './command/input/get-job-by-id.command.input';
 import { GetJobResultCommandOutput } from './command/output/get-job-result.command.output';
 import { JobPayloadTaskEnum } from '../constants/enum';
 import { ServiceInvalidJobException } from './command/exceptions/ServiceInvalidJobException';
+import { QueueRepository } from '../../queues/database/queue.repository';
+import { DbQueueNotFoundException } from '../../queues/database/db/exceptions/DbQueueNotFound.exception';
+import { ServiceQueueNotFoundException } from '../../queues/service/exceptions/ServiceNotFound.exception';
 @Injectable()
 export class JobService {
   constructor(

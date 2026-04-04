@@ -7,8 +7,6 @@ import {
 } from '@aws-sdk/client-sqs';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { QueueDb } from 'src/queues/database/db/common/queue.db';
-import { QueueRepository } from 'src/queues/database/queue.repository';
 import { JobRepository } from '../database/job.repository';
 import { JobStatusEnum } from '../constants/enum';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
@@ -16,6 +14,8 @@ import { JobProcessorService } from './job.processor.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DbJobNotFoundException } from '../database/db/exceptions/DbJobNotFound.exception.';
 import { JobDb } from '../database/db/response/job.db';
+import { QueueDb } from '../../queues/database/db/common/queue.db';
+import { QueueRepository } from '../../queues/database/queue.repository';
 
 @Injectable()
 export class WorkerService {
