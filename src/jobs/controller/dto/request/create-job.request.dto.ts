@@ -2,8 +2,13 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { ImageProcessingPayloadDto } from './task/image_processing.dto';
 import { SendEmailPayloadDto } from './task/send_email.dto';
+import { BulkEmailPayloadDto } from './task/bulk_email.dto';
 
-@ApiExtraModels(ImageProcessingPayloadDto, SendEmailPayloadDto)
+@ApiExtraModels(
+  ImageProcessingPayloadDto,
+  SendEmailPayloadDto,
+  BulkEmailPayloadDto,
+)
 export class CreateJobRequestDto {
   @IsString()
   @IsNotEmpty()
@@ -20,9 +25,13 @@ export class CreateJobRequestDto {
     oneOf: [
       { $ref: getSchemaPath(ImageProcessingPayloadDto) },
       { $ref: getSchemaPath(SendEmailPayloadDto) },
+      { $ref: getSchemaPath(BulkEmailPayloadDto) },
     ],
   })
-  payload: ImageProcessingPayloadDto | SendEmailPayloadDto;
+  payload:
+    | ImageProcessingPayloadDto
+    | SendEmailPayloadDto
+    | BulkEmailPayloadDto;
 
   @IsString()
   @IsNotEmpty()

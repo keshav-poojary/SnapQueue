@@ -9,4 +9,5 @@ export enum JobStatusEnum {
 export enum JobPayloadTaskEnum {
   IMAGE_PROCESSING = 'image_processing',
   SEND_EMAIL = 'send_email',
+  BULK_SEND_EMAIL = 'bulk_send_email',
 }
