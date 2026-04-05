@@ -11,4 +11,5 @@ export enum JobPayloadTaskEnum {
   SEND_EMAIL = 'send_email',
   BULK_SEND_EMAIL = 'bulk_send_email',
   GENERATE_PDF = 'generate_pdf',
+  GENERATE_IMAGE = 'generate_image',
 }

@@ -5,7 +5,7 @@ import {
   ReceiveMessageCommand,
   SQSClient,
 } from '@aws-sdk/client-sqs';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JobRepository } from '../database/job.repository';
 import { JobStatusEnum } from '../constants/enum';
@@ -46,7 +46,7 @@ export class WorkerService {
     );
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async cronSchedule() {
     await this.start();
   }

@@ -4,6 +4,8 @@ import { EmailService } from './tasks/email.service';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
 import { ImageProcessorService } from './tasks/image.processor..service';
 import { BulkEmailService } from './tasks/bulk.email.service';
+import { GeneratePdfService } from './tasks/generate_pdf.service';
+import { GenerateImageService } from './tasks/generate_image.service';
 
 @Injectable()
 export class JobProcessorService {
@@ -11,6 +13,8 @@ export class JobProcessorService {
     private readonly emailService: EmailService,
     private readonly imageProcessorService: ImageProcessorService,
     private readonly bulkEmailservice: BulkEmailService,
+    private readonly generatePdfService: GeneratePdfService,
+    private readonly generateImageService: GenerateImageService,
   ) {}
   async executeJob(job: Job) {
     const task = job.payload.task;
@@ -21,6 +25,10 @@ export class JobProcessorService {
         return await this.imageProcessorService.executeJob(job.payload);
       case 'bulk_send_email':
         return await this.bulkEmailservice.execute(job.payload);
+      case 'generate_pdf':
+        return await this.generatePdfService.execute(job.payload);
+      case 'generate_image':
+        return await this.generateImageService.execute(job.payload);
       default:
         throw new ServiceInternalServerException(
           'Something went wrong, not a valid task',

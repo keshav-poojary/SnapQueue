@@ -91,7 +91,11 @@ export class JobService {
     try {
       const job = await this.getById(command);
 
-      if (job.payload.task !== JobPayloadTaskEnum.IMAGE_PROCESSING) {
+      if (
+        job.payload.task !== JobPayloadTaskEnum.IMAGE_PROCESSING &&
+        job.payload.task !== JobPayloadTaskEnum.GENERATE_PDF &&
+        job.payload.task !== JobPayloadTaskEnum.GENERATE_IMAGE
+      ) {
         throw new ServiceInvalidJobException(
           'This type of jobs does not support result retrieval',
           {
