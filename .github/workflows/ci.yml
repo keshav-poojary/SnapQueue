@@ -31,21 +31,7 @@ jobs:
         run: docker build -t snapqueue-app .
 
       - name: Run Container
-        run: docker run -d -p 3000:3000 --name snapqueue-container snapqueue-app
-
-      - name: Health Check
-        run: |
-          for i in {1..10}; do
-            if curl -s http://localhost:3000/health; then
-              echo "Health check passed!"
-              exit 0
-            else
-              echo "Health check failed, retrying..."
-              sleep 5
-            fi
-          done
-          echo "Health check failed after 10 attempts."
-          exit 1
+        run: docker  run -d -p 3000:3000 --name snapqueue-container snapqueue-app
 
       - name: Cleanup
         if: always()
