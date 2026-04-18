@@ -10,7 +10,9 @@ export class Swagger {
       .addBearerAuth()
       .build();
 
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api', app, document);
+    const document = SwaggerModule.createDocument(app, swaggerConfig, {});
+    SwaggerModule.setup('api', app, document, {
+      customSiteTitle: 'Snap Queue API Docs',
+    });
   }
 }

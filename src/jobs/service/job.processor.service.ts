@@ -4,8 +4,8 @@ import { EmailService } from './tasks/email.service';
 import { ServiceInternalServerException } from './command/exceptions/ServiceInternalServerError.exception';
 import { ImageProcessorService } from './tasks/image.processor..service';
 import { BulkEmailService } from './tasks/bulk.email.service';
-import { GeneratePdfService } from './tasks/generate_pdf.service';
-import { GenerateImageService } from './tasks/generate_image.service';
+import { GeneratePdfService } from './tasks/generate.pdf.service';
+import { GenerateImageService } from './tasks/generate.image.service';
 
 @Injectable()
 export class JobProcessorService {

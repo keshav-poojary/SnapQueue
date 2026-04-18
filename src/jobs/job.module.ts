@@ -11,8 +11,8 @@ import { QueueRepository } from '../queues/database/queue.repository';
 import { TenantModule } from '../tenants/tenant.module';
 import { WorkerService } from './service/worker.service';
 import { S3Service } from './service/s3/s3.service';
-import { GeneratePdfService } from './service/tasks/generate_pdf.service';
-import { GenerateImageService } from './service/tasks/generate_image.service';
+import { GeneratePdfService } from './service/tasks/generate.pdf.service';
+import { GenerateImageService } from './service/tasks/generate.image.service';
 
 @Module({
   imports: [TenantModule, ScheduleModule.forRoot()],
