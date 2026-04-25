@@ -26,11 +26,12 @@ It uses an event-driven approach to handle async background tasks like emails, i
 
 ---
 
-
 ## Architecture
 
 ![N Tier Architecture for SnapQueue API](./architecture/api-archi.png)
 
 ![Job Processing Design](./architecture/job-archi.png)
+
+![SnapQueue High Design](./architecture/design.png)
 
 ---
