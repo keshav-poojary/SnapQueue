@@ -26,7 +26,6 @@ It uses an event-driven approach to handle async background tasks like emails, i
 
 ---
 
----
 
 ## Architecture
 
