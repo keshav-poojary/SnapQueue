@@ -1,6 +1,6 @@
 # SnapQueue 🚀
 
-SnapQueue is a background job processing system built with NestJS and TypeScript.  
+SnapQueue is a background job processing system built with NestJS and typescript 
 It uses an event-driven approach to handle async background tasks like emails, image processing, and PDF generation.
 
 ---
