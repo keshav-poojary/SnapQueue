@@ -63,7 +63,7 @@ export class JobRepository {
         }),
       );
 
-      // Step 3: Send job to SQS
+      // Step 2: Send job to SQS
       await this.sqsClient.send(
         new SendMessageCommand({
           QueueUrl: req.queueUrl,
@@ -76,7 +76,7 @@ export class JobRepository {
         }),
       );
 
-      // Step 4: Update job status to QUEUED
+      // Step 3: Update job status to QUEUED
       await this.dynamodbClient.send(
         new UpdateCommand({
           TableName: this.jobTable,
