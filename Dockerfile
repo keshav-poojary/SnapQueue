@@ -1,23 +1,24 @@
 # ---------- BUILD STAGE ----------
-FROM node:20-alpine AS builder
+FROM node:24-alpine3.23 AS builder
 
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
 # ---------- PRODUCTION STAGE ----------
-FROM node:20-alpine
+FROM node:24-alpine3.23
 
 WORKDIR /app
 
-# Only copy production deps
-COPY package*.json ./
-RUN npm install --omit=dev
+ENV NODE_ENV=production
 
-# Copy built files ONLY
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
